@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ContextPad</title>
+    <style>
+      .startup-status {
+        max-width: 640px;
+        margin: 48px auto;
+        padding: 24px;
+        color: #172026;
+        font-family: "Segoe UI", "Yu Gothic", sans-serif;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+      }
+      .startup-status h1 { font-size: 24px; }
+      .startup-status a { color: #154734; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <main class="startup-status" aria-label="読み込み状況">
+        <h1>ContextPad</h1>
+        <p role="status">画面を読み込んでいます。</p>
+        <p>表示が切り替わらない場合は、ページを再読み込みしてください。HTMLファイルを直接開いている場合は、アプリが起動している状態で下のリンクを開いてください。</p>
+        <a href="http://127.0.0.1:5173/">ContextPadを開く</a>
+        <noscript><p>このアプリを表示するには、ブラウザーのJavaScriptを有効にしてください。</p></noscript>
+      </main>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
