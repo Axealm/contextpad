@@ -23,6 +23,7 @@ This folder captures the project lifecycle in an AI-DLC style. The goal is not t
 - `10-adr.md`
 - `11-test-strategy.md`
 - `14-ui-design.md`
+- `15-gmail-integration.md`
 
 ## Operations
 

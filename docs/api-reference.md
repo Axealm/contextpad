@@ -1,8 +1,8 @@
 # ContextPad API仕様書
 
-文書版: 0.1 / 更新日: 2026-09-13 / 対象: 現行FastAPI実装
+文書版: 0.2 / 更新日: 2026-09-14 / 対象: 現行FastAPI実装
 
-ベースURLは `http://127.0.0.1:8000`。リクエスト・レスポンスはJSON。動的なAPI定義は `/openapi.json`、対話的なドキュメントは `/docs` で取得できる。現行版に認証や利用者分離はない。
+ベースURLは `http://127.0.0.1:8000`。通常のリクエスト・レスポンスはJSON。動的なAPI定義は `/openapi.json`、対話的なドキュメントは `/docs`。メモAPIに利用者認証・利用者分離はない。Gmail APIのみ連携用セッションを検証する。
 
 ## エンドポイント一覧
 
@@ -16,7 +16,25 @@
 | PUT | `/api/v1/notes/{note_id}` | 200 | メモを全体更新。ID・created_atは維持、不明IDは404 |
 | POST | `/api/v1/notes/{note_id}/review` | 200 | 抽出結果全体を確認済みにする。不明IDは404 |
 
-DELETE、ページング、共有、OAuthコールバック、Gmail検索、項目別承認のAPIは未実装。
+メモのDELETE、メモ一覧のページング、共有、項目別承認のAPIは未実装。Gmailルートは以下を参照。
+
+## Gmail API
+
+認証設定・実接続検証は未完了。callbackとresultを除く全ルートは、ブラウザーの `Origin` が設定済みのAPP_WEB_ORIGINに一致する必要がある。messagesはHttpOnly Cookieによるセッションも必須。`/docs` からの直接試行はOriginが異なるため403となる。
+
+| メソッド | `/api/v1/gmail` 以下のパス | 契約 |
+| --- | --- | --- |
+| GET | `/status` | `{configured, connected, pending, error}`。秘密情報は返さない |
+| POST | `/connect` | 本文なし。認証URLを `{authorization_url}` で返し、Cookieを設定。未設定は503 |
+| GET | `/callback` | Googleのstate/code/errorを処理。検証後は303でresultへ遷移し、コードをURLから除く |
+| GET | `/result?success=true` | 成功案内HTML。falseは400の失敗案内。表示だけで認証状態は変えない |
+| GET | `/messages?q=...&page_token=...` | `{messages: EmailLink[], next_page_token: stringまたはnull}`。最大10件。qは500文字、page_tokenは2048文字まで |
+| GET | `/messages/{message_id}` | `{email: EmailLink, truncated: boolean, snippet_only: boolean}`。IDは半角英数字1〜128文字。本文は最大20,000文字 |
+| POST | `/disconnect` | 本文なし。`{connected:false, revoked:boolean}`。ローカル消去とGoogleへの失効要求。revoked=falseはGoogle側の失効未確認 |
+
+一覧のsnippetはGmailの短い抜粋。個別取得時はMIME本文のテキストをsnippetへ格納し、本文を取得できない場合は抜粋へ戻してsnippet_only=trueを返す。元メールへの変更や、メモへの自動保存は行わない。
+
+Gmailエラーは `{detail: "安全なエラーコード"}`。例: 未接続・失効は401/reconnect_required、異なるOriginは403/origin_not_allowed、権限/API設定は403/access_denied、不明メールは404/message_not_found、上限は429/rate_limited、通信障害は502/gmail_unavailable。Google応答本文・トークン・認証コードは返さない。入力制約違反は422。全業務APIにはCache-Control: no-storeを付与する。
 
 ## 作成・更新の入力
 

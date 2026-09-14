@@ -36,6 +36,10 @@ Context: Gmail OAuth adds setup complexity and review requirements.
 
 Decision: MVP supports pasted email metadata first. Gmail API integration is designed but deferred.
 
+Update (2026-09-14): Gmail deferral is superseded by ADR-005 after the user
+explicitly prioritized Gmail. Manual entry remains available. Real-account
+configuration and verification are still pending.
+
 Consequences:
 
 - Product loop can be tested earlier
@@ -55,3 +59,11 @@ Consequences:
 - PostgreSQL improves search and audit queries
 - DynamoDB lowers operations burden
 - Repository boundary prevents storage choice from leaking into handlers
+
+## ADR-005: Local Readonly Gmail Integration
+
+Status: Gmail priority requested; implemented locally with mocked verification.
+Detailed human acceptance and live Google connection remain pending.
+
+See [Gmail integration design](15-gmail-integration.md) for the alternatives,
+security boundary, temporary storage tradeoff, and rollout conditions.

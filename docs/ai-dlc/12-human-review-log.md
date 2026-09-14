@@ -142,3 +142,48 @@ Verification:
 
 Human review status: Changes and commit explicitly requested. Detailed design
 acceptance and production-release approval remain pending.
+
+## Review 007: Gmail Integration Priority
+
+Date: 2026-09-14
+
+Explicit human requests:
+
+- Continue development and provide links.
+- Prioritize Gmail integration over persistent storage.
+- The Google Cloud OAuth client has not been created; provide setup instructions.
+
+Implemented response:
+
+- Add local web-server OAuth using the Google library, PKCE, single-use
+  browser-bound state, short-lived process-memory sessions, and readonly scope.
+- Add Gmail search, paged metadata, selected-message text preview, explicit
+  linking/replacement in a draft, token refresh, and disconnect/revocation.
+- Keep the existing memo-centered layout and manual email entry.
+- Document Google Cloud configuration and distinguish implementation from
+  real-account verification. Never request secrets in the conversation.
+- Update the Japanese specifications, API contracts, security, test strategy,
+  operations guidance, and ADR-005 in 15-gmail-integration.md.
+
+Verification at implementation time:
+
+- 22 API tests pass, including 17 Gmail scenarios using only synthetic data.
+- TypeScript and Vite production build pass with the installed local tools.
+- Browser checks: unconfigured state and guide link; on a separate synthetic
+  API, 10-to-12 message pagination, preview, explicit replacement without
+  losing memo text, empty search, error recovery, disconnect, and 390x844
+  layout without horizontal overflow. No test bypass exists in product code.
+- A temporary Vite development server failed dependency prebundling in the
+  restricted Windows environment. A production build served locally was
+  used for these checks; no security control was disabled.
+- Real Google authentication and mailbox access have not been tested because
+  no OAuth client has been configured. No real mail was read or sent.
+- Validated 23 Markdown files, 30 local document links, and seven JSON
+  examples; the documented note example matches the actual extractor.
+- Reloading the user's existing app tab after the final build was not
+  completed: browser approval prevented risking unsaved text. The user was
+  asked whether to preserve the current tab state or allow a reload.
+
+Human review status: Gmail priority and setup documentation explicitly
+requested. Detailed security/design acceptance and production release remain
+pending. This record does not turn mocked tests into real connection approval.

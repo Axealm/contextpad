@@ -6,8 +6,9 @@ import {
   Plus, Search, Users, X,
 } from "lucide-react";
 import "./styles.css";
+import { EmailLink, request } from "./api";
+import { GmailPicker } from "./GmailPicker";
 
-type EmailLink = { provider: "gmail"; subject: string; sender: string; snippet: string };
 type ExtractedContext = {
   summary: string;
   event_datetime: string | null;
@@ -24,7 +25,6 @@ type WorkNote = {
 type Document = Omit<WorkNote, "context"> & {
   context: ExtractedContext | null; saved: boolean; dirty: boolean;
 };
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
 const emptyEmail: EmailLink = { provider: "gmail", subject: "", sender: "", snippet: "" };
 const example: Document = {
   id: "draft-example", title: "9/17 取引先A 打ち合わせ", saved: false, dirty: true,
@@ -35,16 +35,6 @@ const example: Document = {
   },
   memo: "担当Aさん参加\n前回資料確認\nSaaS棚卸しのところ聞く\n業務ツールの利用状況も確認\n明日午前中ドラフト作る",
 };
-
-async function request<T>(path: string, method = "GET", data?: unknown): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    ...(data === undefined ? {} : { headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }),
-    signal: AbortSignal.timeout(30000),
-  });
-  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-  return response.json();
-}
 
 function IconButton({ label, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
   return <button type="button" className="icon-button" aria-label={label} title={label} {...props}>{children}</button>;
@@ -238,10 +228,11 @@ function App() {
 function EmailSection({ email, disabled, onChange }: { email: EmailLink | null; disabled: boolean; onChange: (email: EmailLink | null) => void }) {
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(true);
-  if (!email) return <button type="button" className="link-email-button" disabled={disabled} onClick={() => { onChange({ ...emptyEmail }); setEditing(true); }}><Plus size={14} /><Mail size={14} />メールを紐づける</button>;
+  const gmailPicker = <GmailPicker disabled={disabled} replacing={!!email} onSelect={(selected) => { onChange(selected); setEditing(false); setExpanded(true); }} />;
+  if (!email) return <div className="email-add-actions">{gmailPicker}<button type="button" className="link-email-button" disabled={disabled} onClick={() => { onChange({ ...emptyEmail }); setEditing(true); }}><Plus size={14} />メールを手入力</button></div>;
   return <section className="email-section" aria-label="関連メール">
     <div className="email-heading"><button type="button" className="email-toggle" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}><Mail size={15} /><span>関連メール</span><ChevronDown size={13} className={expanded ? "" : "collapsed"} /></button>
-      <div className="email-tools"><IconButton label={editing ? "メールの編集を完了" : "関連メールを編集"} disabled={disabled} onClick={() => { setExpanded(true); setEditing(!editing); }}>{editing ? <Check size={14} /> : <Pencil size={14} />}</IconButton>
+      <div className="email-tools">{gmailPicker}<IconButton label={editing ? "メールの編集を完了" : "関連メールを編集"} disabled={disabled} onClick={() => { setExpanded(true); setEditing(!editing); }}>{editing ? <Check size={14} /> : <Pencil size={14} />}</IconButton>
         {editing && <IconButton label="メールの紐づけを解除" disabled={disabled} onClick={() => onChange(null)}><X size={14} /></IconButton>}</div></div>
     {expanded && (editing ? <div className="email-edit-fields">
       <label>メールの件名<input value={email.subject} disabled={disabled} onChange={(event) => onChange({ ...email, subject: event.target.value })} /></label>

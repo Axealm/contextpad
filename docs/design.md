@@ -1,6 +1,6 @@
 # ContextPad 基本・詳細設計書
 
-文書版: 0.1 / 更新日: 2026-09-13 / 対象: 現行実装と将来構成案
+文書版: 0.2 / 更新日: 2026-09-14 / 対象: 現行実装と将来構成案
 
 ## 1. 実装構成
 
@@ -12,19 +12,26 @@ flowchart LR
     A --> E[ContextExtractor]
     A --> R[NoteRepository]
     R --> M[プロセスメモリ]
+    W --> G[GmailRouter / GmailService]
+    G --> O[Google OAuth / Gmail API]
+    G --> S[一時セッション / トークン]
     E -. 将来の接続先 .-> B[BedrockExtractor雛形]
 ```
 
-ブラウザーは通常 `127.0.0.1:5173`、APIは `127.0.0.1:8000`。ブラウザーに渡す `VITE_API_BASE` は公開設定であり、秘密鍵やトークンを入れない。CORSは `localhost:5173` と `127.0.0.1:5173` に固定されている。
+ブラウザーは通常 `127.0.0.1:5173`、APIは `127.0.0.1:8000`。`VITE_API_BASE` は公開設定であり、秘密鍵やトークンを入れない。CORSは既定の両ローカル表記とAPP_WEB_ORIGINを許可するが、GmailのブラウザーAPIはAPP_WEB_ORIGINとの完全一致を追加検証する。Hostはlocalhost/127.0.0.1のみ。Gmailは同じホスト名のローカルHTTP構成に限定し、クラウド用構成は別途設計する。
 
 ## 2. モジュールの責務
 
 | ファイル | 責務・制約 |
 | --- | --- |
 | `apps/web/src/main.tsx` | Appの状態、一覧・編集・整理画面、API呼び出し、失敗表示 |
+| `apps/web/src/api.ts` | Cookie付き通信、上限時間、共通メール型とエラー |
+| `apps/web/src/GmailPicker.tsx` | 接続・検索・プレビュー・選択・解除、ダイアログのフォーカス管理 |
 | `apps/web/src/styles.css` | ニュートラル配色、3列構成、狭幅表示、フォーカス、動作低減 |
 | `apps/web/index.html` | 起動時の代替表示。JSが読み込めない場合も案内を残す |
-| `apps/api/app/main.py` | 7本の業務・ヘルスAPI、CORS、抽出・保存の呼び出し |
+| `apps/api/app/main.py` | 7本の業務・ヘルスAPI、Gmailルーター登録、CORS・Host・応答ヘッダー |
+| `apps/api/app/gmail.py` | 設定、Cookieとstateの照合、一時セッション、Gmail用7ルート、アクセスログのクエリー除去 |
+| `apps/api/app/gmail_provider.py` | Google公式認証ライブラリ、Gmailの読取・失効要求、MIME本文のテキスト化 |
 | `apps/api/app/models.py` | 入出力の型、UUID、UTC日時、最小文字数、確認状態 |
 | `apps/api/app/extractor.py` | 日本語文字列からの決定的抽出。外部通信しない |
 | `apps/api/app/repository.py` | 辞書による作成・読取・検索・更新・確認状態変更 |
@@ -48,9 +55,9 @@ flowchart LR
 | EmailLinkの項目 | 型・初期値 |
 | --- | --- |
 | `provider` | `gmail` 固定 |
-| `provider_message_id` | stringまたはnull。UIからは設定しない |
+| `provider_message_id` | stringまたはnull。Gmail選択時に元メールIDを保持 |
 | `subject` / `sender` / `snippet` | string、既定値は空文字。senderはメール形式検証なし |
-| `received_at` | datetimeまたはnull。UIからは設定しない |
+| `received_at` | datetimeまたはnull。GmailのinternalDateをUTCに変換 |
 
 | ExtractedContextの項目 | 型・意味 |
 | --- | --- |
@@ -107,7 +114,7 @@ sequenceDiagram
 
 一覧はAPIから起動時に読み込み、ブラウザー内の下書きと統合する。入力中に取得が終わっても同じIDを重複追加しない。UI検索はtitle・memo・email.subjectが対象で、API検索にはcontext.tasksも含まれる。API一覧は作成日時の降順であり、更新時の自動並び替えではない。
 
-HTTP失敗・通信例外・30秒のタイムアウトは画面で捕捉し、処理中状態を解除する。自動再試行や楽観ロックは未実装。複数タブで同じメモを更新すると後勝ちになる。
+HTTP失敗・通信例外・原則30秒のタイムアウトは画面で捕捉し、処理中状態を解除する。Gmail一覧は10件分のメタデータ照会を伴うため120秒。認証待ちは最大10分で状態だけを確認し、アクセストークン更新は公式ライブラリを使う。一般的な業務APIの自動再試行や楽観ロックは未実装。複数タブで同じメモを更新すると後勝ちになる。
 
 APIエラーは現在FastAPIの標準 `detail` 形式。定義だけ存在する `ErrorEnvelope` は使われていない。
 
@@ -136,7 +143,8 @@ flowchart LR
 | DynamoDB | pk/sk、オンデマンド容量、暗号化の雛形あり。APIは未接続 |
 | Secrets Manager / CloudWatch | シークレット格納先とロググループの雛形のみ |
 | API Gateway / Lambda / ECS / CloudFront / RDS | リソース実装なし |
-| Bedrock / Gmail OAuth | 実呼び出しなし |
+| Bedrock | 実呼び出しなし |
+| Gmail OAuth | ローカル用実装あり。認証情報・実接続検証・クラウド対応は未完了 |
 | GitHub Actions | テスト・ビルド・Terraform検証の設定のみ。デプロイなし |
 
 `runtime_mode` 変数は宣言だけでリソースの切り替えに使われていない。シークレットの値も定義していない。現状のTerraformを適用してもサービス全体は稼働しない。
@@ -151,3 +159,7 @@ flowchart LR
 - 自動デプロイ認証はGitHub OIDCと短期権限を候補とし、保存データの暗号化、バックアップ、保持・削除方針を合わせて設計する。
 
 API認証、実データの保存、公開環境の運用は別のレビュー対象とする。
+
+## 9. Gmail連携の追加設計
+
+接続のデータフロー、MIME処理、セッション寿命、APIの契約、セキュリティ上の判断は[追加設計とADR](ai-dlc/15-gmail-integration.md)、初期設定は[Gmail設定手順](gmail-setup.md)を参照。Gmail OAuthは利用者ログインを代替しない。メモリ上のメモは利用者別には分離されていないため、テスト用の架空メールだけを扱う。

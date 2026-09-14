@@ -20,6 +20,33 @@ class EmailLink(BaseModel):
     snippet: str = ""
 
 
+class GmailConnectionStatus(BaseModel):
+    configured: bool
+    connected: bool
+    pending: bool
+    error: str | None = None
+
+
+class GmailAuthorization(BaseModel):
+    authorization_url: str
+
+
+class GmailMessagePage(BaseModel):
+    messages: list[EmailLink]
+    next_page_token: str | None = None
+
+
+class GmailMessageDetail(BaseModel):
+    email: EmailLink
+    truncated: bool
+    snippet_only: bool
+
+
+class GmailDisconnectResult(BaseModel):
+    connected: Literal[False] = False
+    revoked: bool
+
+
 class ExtractRequest(BaseModel):
     memo: str = Field(min_length=1)
     email: EmailLink | None = None
