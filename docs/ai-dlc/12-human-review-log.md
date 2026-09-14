@@ -192,3 +192,24 @@ The implementation was committed locally as `a3c6a68`; no remote push occurred.
 Human review status: Gmail priority and setup documentation explicitly
 requested. Detailed security/design acceptance and production release remain
 pending. This record does not turn mocked tests into real connection approval.
+
+## Review 008: No-Cost Development Constraint
+
+Date: 2026-09-14
+
+Explicit human request: Use free options throughout and explain the next steps.
+
+Response: Record zero additional service spending as a project constraint.
+Keep local React/FastAPI; propose SQLite and, only after checking hardware
+and model terms, local generation. Defer AWS/Bedrock deployment, paid APIs,
+promotional-credit consumption, and billing activation. Keep Gmail priority
+while allowing independent local storage work during OAuth setup.
+
+Evidence: Check official Gmail quotas/scopes, Bedrock pricing, GitHub Actions
+billing, SQLite terms, and Ollama documentation. Document free-tier limits
+and separate a local prototype from a publicly hosted Gmail service.
+
+Implementation status: Documentation and project guidance only. No new DB,
+model installation, paid account, billing change, or public deployment was
+performed. Detailed implementation choices and live-account checks remain
+pending; the free-only constraint is an explicit user instruction.

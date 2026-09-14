@@ -120,6 +120,8 @@ APIエラーは現在FastAPIの標準 `detail` 形式。定義だけ存在する
 
 ## 7. AWS構成案（未接続）
 
+2026-09-14追記: 無料で進めるユーザー指示により、以下は将来の比較・移行設計としてのみ保持する。現在の開発対象はローカル版であり、AWSやBedrockはデプロイ・課金有効化しない。[無料構成と工程](ai-dlc/16-free-development-roadmap.md)を優先する。
+
 ```mermaid
 flowchart LR
     Browser[ブラウザー] --> CF[CloudFront]

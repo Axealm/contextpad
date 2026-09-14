@@ -12,6 +12,7 @@
 | [テスト・運用設計書](test-and-operations.md) | 検証方法、起動・停止、障害対応、リリース条件、残課題 |
 | [Gmail設定手順](gmail-setup.md) | Google Cloud OAuthの準備、秘密情報の設定、実接続時の確認 |
 | [Gmail連携設計](ai-dlc/15-gmail-integration.md) | 接続・取得・解除、セキュリティ、データ寿命、ADR、試験 |
+| [無料構成と次の工程](ai-dlc/16-free-development-roadmap.md) | 追加料金0円の制約、ローカル構成、無料枠の境界、作業順序 |
 | [AI-DLC成果物一覧](ai-dlc/00-index.md) | Inception / Construction / Operationsの検討記録 |
 | [レビュー履歴](ai-dlc/12-human-review-log.md) | ユーザーからの指示、AIの実施内容、未承認の判断 |
 

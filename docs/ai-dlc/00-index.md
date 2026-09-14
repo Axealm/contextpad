@@ -28,6 +28,7 @@ This folder captures the project lifecycle in an AI-DLC style. The goal is not t
 ## Operations
 
 - `13-release-operations.md`
+- `16-free-development-roadmap.md`
 
 ## Governance
 
