@@ -31,6 +31,7 @@ This folder captures the project lifecycle in an AI-DLC style. The goal is not t
 
 - `13-release-operations.md`
 - `16-free-development-roadmap.md`
+- `19-gmail-live-acceptance.md`
 - [Portfolio overview](../portfolio.md)
 - [Demo walkthrough](../demo.md)
 

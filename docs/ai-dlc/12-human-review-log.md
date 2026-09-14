@@ -284,3 +284,27 @@ normal build served at port 5173 and will load on the user's next refresh.
 Human review status: Continuation is authorized; detailed acceptance,
 browser deletion/import confirmation, real Gmail and publication remain
 pending. Do not claim that automated tests constitute human approval.
+
+## Review 011: Prepare Live Gmail Acceptance
+
+Date: 2026-09-14
+
+Explicit human request: Move to the next step. Resume the pending live Gmail
+acceptance work rather than treating mocked responses as a completed
+integration.
+
+Local observation: The running API returns configured=false and
+connected=false. No API .env existed at the start of this step. Prepare an
+empty ignored settings file for local credential entry, correct the obsolete
+restart/data-loss sentence in the setup guide, and add the live acceptance
+checklist. Keep all live-account rows pending until actually observed.
+
+Boundaries: No OAuth client was issued, no credentials were entered, no
+Google account was accessed, and no permissions, billing or public settings
+were changed. The user must perform account login, consent and local secret
+entry. Never ask for credentials in chat or include them in Git.
+
+Verification: The local .env matches the existing Git exclusion rule and
+was not staged. Validated 29 Markdown files, 75 local links and seven API
+JSON examples. TypeScript and the production build pass with the updated
+setup guide. API code and account permissions were not changed in this step.
