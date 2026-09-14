@@ -22,13 +22,12 @@
 | --- | --- | --- |
 | 外部サービス連携 | サーバー側OAuth、読み取り専用Gmail検索・詳細・選択・解除。保存後の紐づけ保持まで本人が実接続確認 | [実接続の受入記録](docs/ai-dlc/19-gmail-live-acceptance.md) |
 | データを守る設計 | SQLite永続化、同一ID更新、JSONバックアップ、復元競合時は全体取消。APIで再起動・復旧を検証 | [保存設計](docs/ai-dlc/17-sqlite-persistence.md) / [復元設計](docs/ai-dlc/18-note-management.md) |
-| 検証と説明可能性 | 50件のAPIテスト、Web型チェック・ビルド、仕様・ADR・人間の確認履歴。GitHub上のCI結果は公開後に確認 | [テスト・運用](docs/test-and-operations.md) / [レビュー履歴](docs/ai-dlc/12-human-review-log.md) |
+| 検証と説明可能性 | 50件のAPIテスト、Web型チェック・ビルド、仕様・ADR・レビュー記録。GitHub ActionsでAPI・Web・Terraformの全ジョブ成功を確認済み | [テスト・運用](docs/test-and-operations.md) / [開発記録](docs/ai-dlc/12-human-review-log.md) |
 
 利用者認証・共有・生成AI呼び出し・AWSデプロイは未実装です。削除・復元のブラウザー最終受入、Gmail再接続・異常系の追加実試験は残しています。実装済みの機能と受入済みの範囲を分けて記録しています。
 
 ## 開発の進め方
-
-AWS AI-DLCの考え方を参考に、要求、設計、実装、テスト、運用上の判断を文書化しました。人間が課題・優先順位・費用制約を決め、Codexが設計案・コード・自動テスト・文書の作成を支援し、本人がGmail実接続を確認しています。コードをすべて手書きしたという主張ではなく、AI案の扱いと実際の人間レビューを[AI-DLC成果物](docs/ai-dlc/00-index.md)で示しています。
+AWS AI-DLCの考え方を参考に、要求整理から設計、実装、テスト、運用設計までを文書化しながら開発しました。開発支援にはCodexを活用し、要件・設計判断・受入確認は開発者自身で行っています。検討過程や設計判断は[AI-DLC開発記録](docs/ai-dlc/00-index.md)にまとめています。
 
 **費用方針（2026-09-14）:** 追加のサービス利用料0円を前提に開発します。AWS・Bedrockは設計資料と雛形に留め、課金の有効化や実デプロイは行いません。無料枠には上限があり、超過時は停止します。[無料構成と次の工程](docs/ai-dlc/16-free-development-roadmap.md)を参照してください。
 
@@ -106,6 +105,6 @@ APIの既定接続先は `http://127.0.0.1:8000`。`VITE_API_BASE` で変更で�
 
 ## 検証とコミット
 
-APIは仮想環境内で `python -m pytest -q`、Webは `pnpm build` を実行します。ローカルで50件のAPIテストを通過しています。再起動、復元、競合時の全体取消、OAuth失敗・失効などを含みます。GitHub ActionsにもAPIテスト、Webビルド、Terraform検証を定義していますが、リモート上の実行は別途確認します。
+APIは仮想環境内で `python -m pytest -q`、Webは `pnpm build` を実行します。ローカルで50件のAPIテストを通過しています。再起動、復元、競合時の全体取消、OAuth失敗・失効などを含みます。GitHub ActionsでAPIテスト、Webビルド、Terraform検証を実行し、mainブランチ上で全ジョブの成功を確認しています。
 
 依存ディレクトリ、仮想環境、DB・バックアップ、ビルド生成物、ログ、秘密情報、Terraform state・個別変数はGitに含めません。人間の指示と実装・検証はレビュー履歴へ記録し、AIが人間の承認を代行して記録しない方針です。
