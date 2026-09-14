@@ -11,16 +11,15 @@
 | [API仕様書](api-reference.md) | 実装済みエンドポイント、リクエスト・レスポンス、エラー形式 |
 | [テスト・運用設計書](test-and-operations.md) | 検証方法、起動・停止、障害対応、リリース条件、残課題 |
 | [Gmail設定手順](gmail-setup.md) | Google Cloud OAuthの準備、秘密情報の設定、実接続時の確認 |
-| [Gmail実接続の受入確認](ai-dlc/19-gmail-live-acceptance.md) | 本人による正常系7項目の確認結果、証跡の扱い、追加試験 |
+| [Gmail実接続の受入確認](ai-dlc/19-gmail-live-acceptance.md) | 正常系7項目の実接続結果、証跡の扱い、追加試験 |
 | [Gmail連携設計](ai-dlc/15-gmail-integration.md) | 接続・取得・解除、セキュリティ、データ寿命、ADR、試験 |
 | [ポートフォリオ概要](portfolio.md) | 紹介文、実装状況、判断の根拠、残課題 |
-| [応募用の公開手順](publishing.md) | GitHub掲載、秘密情報の検査、応募欄に使うURLとアプリ公開の違い |
 | [90秒デモ](demo.md) | 架空データでの説明順序と確認手順 |
 | [削除・バックアップ設計](ai-dlc/18-note-management.md) | 確認画面、JSON契約、復元時の保護、ADR-007 |
 | [SQLite保存設計](ai-dlc/17-sqlite-persistence.md) | 保存先、トランザクション、再起動試験、ADR-006 |
 | [無料構成と次の工程](ai-dlc/16-free-development-roadmap.md) | 追加料金0円の制約、ローカル構成、無料枠の境界、作業順序 |
 | [AI-DLC成果物一覧](ai-dlc/00-index.md) | Inception / Construction / Operationsの検討記録 |
-| [レビュー履歴](ai-dlc/12-human-review-log.md) | ユーザーからの指示、AIの実施内容、未承認の判断 |
+| [開発レビュー履歴](ai-dlc/12-human-review-log.md) | 要件変更、設計判断、実装・検証結果の記録 |
 
 読む順序は、仕様書、基本・詳細設計書、API仕様書、テスト・運用設計書を推奨します。
 
@@ -28,8 +27,8 @@
 
 - このディレクトリ直下の仕様・設計・API・テスト運用文書を現行実装の正本とし、Gmail連携の詳細は追加設計と設定手順で補います。
 - `ai-dlc/` の初期資料は検討時点の要求・将来案を含むため、各資料のスコープ注記も参照してください。
-- 「設計案」は実装・接続・検証済みを意味しません。設計書の作成やGitコミット自体も、人間による設計承認を意味しません。
-- AWS AI-DLCの、成果物を残して人間が判断する考え方を参考にしたプロジェクト独自の運用です。公式ワークフローのインストールや全ゲートの実行を完了したと主張するものではありません。公式の構成は更新されるため、導入時は[AI-DLC公式リポジトリ](https://github.com/awslabs/aidlc-workflows)を確認します。
+- 設計案・実装済み・検証済みの状態を各資料で区別し、現行実装との差分が分かるよう管理しています。
+- AWS AI-DLCの考え方を参考に、要求・設計・実装・検証の成果物と設計判断を継続的に記録しています。公式の構成は更新されるため、導入時は[AI-DLC公式リポジトリ](https://github.com/awslabs/aidlc-workflows)を確認します。
 
 ## 匿名化の範囲
 
