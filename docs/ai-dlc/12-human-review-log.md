@@ -213,3 +213,32 @@ Implementation status: Documentation and project guidance only. No new DB,
 model installation, paid account, billing change, or public deployment was
 performed. Detailed implementation choices and live-account checks remain
 pending; the free-only constraint is an explicit user instruction.
+
+## Review 009: Portfolio Work in the Presented Order
+
+Date: 2026-09-14
+
+Explicit human request: Proceed from the top of the presented list: durable
+storage, live Gmail verification, deletion/backup, workflow tests/CI, then
+portfolio presentation. Commit the artifacts for the portfolio.
+
+First implementation: Replace process-memory notes with a local SQLite
+repository. Preserve note IDs, timestamps, linked mail, extraction and review
+state across restarts. Keep OAuth credentials in memory only. Record ADR-006,
+update current specifications, and exclude runtime DB files from Git.
+
+Verification: 34 API tests pass locally, including 12 storage cases. A test
+starts separate Python processes to save, update, review and read the same
+database through the API. Parallel writes, transaction rollback, literal
+search, corrupt/unknown-schema rejection and temporary DB isolation are
+covered. The initial test run hit a Windows temporary-directory permission
+error; rerunning with a fresh temporary directory inside the workspace
+passed. No security setting was disabled.
+
+Gmail configuration check: Local API reports unconfigured and no API .env
+file exists. Live Google consent/mailbox verification still requires user
+setup. Mocked tests are not live-account evidence.
+
+Human review status: Work order and free-only constraint are explicit.
+Detailed design acceptance, live integration, production approval and
+GitHub publication are not implied by this record.

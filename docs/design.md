@@ -1,6 +1,6 @@
 # ContextPad 基本・詳細設計書
 
-文書版: 0.2 / 更新日: 2026-09-14 / 対象: 現行実装と将来構成案
+文書版: 0.3 / 更新日: 2026-09-14 / 対象: 現行実装と将来構成案
 
 ## 1. 実装構成
 
@@ -11,7 +11,7 @@ flowchart LR
     A --> V[Pydantic入力検証]
     A --> E[ContextExtractor]
     A --> R[NoteRepository]
-    R --> M[プロセスメモリ]
+    R --> M[SQLite: ローカルファイル]
     W --> G[GmailRouter / GmailService]
     G --> O[Google OAuth / Gmail API]
     G --> S[一時セッション / トークン]
@@ -34,10 +34,10 @@ flowchart LR
 | `apps/api/app/gmail_provider.py` | Google公式認証ライブラリ、Gmailの読取・失効要求、MIME本文のテキスト化 |
 | `apps/api/app/models.py` | 入出力の型、UUID、UTC日時、最小文字数、確認状態 |
 | `apps/api/app/extractor.py` | 日本語文字列からの決定的抽出。外部通信しない |
-| `apps/api/app/repository.py` | 辞書による作成・読取・検索・更新・確認状態変更 |
+| `apps/api/app/repository.py` | SQLiteの作成・読取・検索・更新・確認状態変更、スキーマ版管理、接続・トランザクション |
 | `apps/api/app/bedrock_adapter.py` | JSONプロンプト構築と応答モデル検証。実行経路から未使用 |
 
-依存方向はルートからモデル・抽出・リポジトリへ向ける。DBや生成AIのクライアントは、画面やルートから直接呼ばず、今後サービス境界へ追加する。
+依存方向はルートからモデル・抽出・リポジトリへ向ける。SQLite接続はリポジトリに閉じ、生成AIのクライアントも画面やルートから直接呼ばない。
 
 ## 3. 現行データモデル
 
@@ -67,6 +67,8 @@ flowchart LR
 | `confidence` | 0〜1。現行抽出器の上限0.95。UI非表示 |
 | `ai_model` | 現行は `local-deterministic-extractor` |
 | `review_status` | `ai_generated` または `human_reviewed` |
+
+SQLiteの `notes` テーブルにid/title/memo/email_json/context_json/created_at/updated_atを格納する。JSONはPydanticと標準JSONパーサーで読み書きし、IDを主キーとする。スキーマ版は `PRAGMA user_version=1`。接続は操作ごとに開閉し、更新・確認は読取前に `BEGIN IMMEDIATE` を取得する。ロック待機は5秒。未知のスキーマや破損を空DBへ置換しない。詳細は[保存設計・ADR-006](ai-dlc/17-sqlite-persistence.md)。
 
 画面側のDocumentは、これに `saved`・`dirty` とnullableなcontextを加える。未保存IDは `draft-` で始まる。これらはAPIの保存スキーマに含まれない。
 
@@ -164,4 +166,4 @@ API認証、実データの保存、公開環境の運用は別のレビュー�
 
 ## 9. Gmail連携の追加設計
 
-接続のデータフロー、MIME処理、セッション寿命、APIの契約、セキュリティ上の判断は[追加設計とADR](ai-dlc/15-gmail-integration.md)、初期設定は[Gmail設定手順](gmail-setup.md)を参照。Gmail OAuthは利用者ログインを代替しない。メモリ上のメモは利用者別には分離されていないため、テスト用の架空メールだけを扱う。
+接続のデータフロー、MIME処理、セッション寿命、APIの契約、セキュリティ上の判断は[追加設計とADR](ai-dlc/15-gmail-integration.md)、初期設定は[Gmail設定手順](gmail-setup.md)を参照。Gmail OAuthは利用者ログインを代替しない。SQLite上のメモは暗号化・利用者別分離がないため、テスト用の架空メールだけを扱う。

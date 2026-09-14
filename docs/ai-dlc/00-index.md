@@ -24,6 +24,7 @@ This folder captures the project lifecycle in an AI-DLC style. The goal is not t
 - `11-test-strategy.md`
 - `14-ui-design.md`
 - `15-gmail-integration.md`
+- `17-sqlite-persistence.md`
 
 ## Operations
 
