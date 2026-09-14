@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Literal
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class ReviewStatus(str, Enum):
@@ -51,6 +51,13 @@ class ExtractRequest(BaseModel):
     memo: str = Field(min_length=1)
     email: EmailLink | None = None
 
+    @field_validator("memo")
+    @classmethod
+    def nonblank_memo(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank")
+        return value
+
 
 class ExtractedContext(BaseModel):
     summary: str
@@ -64,10 +71,15 @@ class ExtractedContext(BaseModel):
     review_status: ReviewStatus = ReviewStatus.ai_generated
 
 
-class NoteCreate(BaseModel):
+class NoteCreate(ExtractRequest):
     title: str = Field(min_length=1)
-    memo: str = Field(min_length=1)
-    email: EmailLink | None = None
+
+    @field_validator("title")
+    @classmethod
+    def nonblank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank")
+        return value
 
 
 class WorkNote(BaseModel):
@@ -82,3 +94,33 @@ class WorkNote(BaseModel):
 
 class ErrorEnvelope(BaseModel):
     error: dict
+
+
+class NoteBackup(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[1]
+    exported_at: datetime
+    notes: list[WorkNote] = Field(max_length=1000)
+
+    @model_validator(mode="after")
+    def validate_notes(self):
+        ids = set()
+        for note in self.notes:
+            if str(UUID(note.id)) != note.id:
+                raise ValueError("backup IDs must be canonical UUIDs")
+            if note.id in ids or not note.title.strip() or not note.memo.strip():
+                raise ValueError("invalid backup note")
+            if note.created_at.tzinfo is None or note.updated_at.tzinfo is None:
+                raise ValueError("backup timestamps require timezones")
+            if note.updated_at < note.created_at:
+                raise ValueError("invalid backup timestamps")
+            note.created_at = note.created_at.astimezone(timezone.utc)
+            note.updated_at = note.updated_at.astimezone(timezone.utc)
+            ids.add(note.id)
+        return self
+
+
+class RestoreResult(BaseModel):
+    restored: int
+    skipped: int

@@ -242,3 +242,45 @@ setup. Mocked tests are not live-account evidence.
 Human review status: Work order and free-only constraint are explicit.
 Detailed design acceptance, live integration, production approval and
 GitHub publication are not implied by this record.
+
+## Review 010: Note Management and Portfolio Evidence
+
+Date: 2026-09-14
+
+Human instruction: Continue the ordered portfolio work. A further message
+requested continuation during implementation. The request to test deletion
+and file import in the isolated browser remains a separate confirmation.
+
+Implemented: Add deletion with a cancel-first dialog; versioned JSON export
+and restore; transaction-wide rollback on conflicting IDs; duplicate-file
+idempotency; size/type checks; cross-site mutation protection; blank-input
+validation. Keep Gmail originals and in-memory OAuth credentials outside
+note deletion and backups. Record ADR-007 and update current documentation.
+
+Evidence: 50 API tests cover storage, Gmail mocked responses, management and
+OpenAPI references. Web type-check/build passes. Browser checks use a
+separate local API and database, not the user's app session. Saving/review,
+delete-dialog cancellation, download and 390px layout were checked. A
+download-event waiter timed out, but the actual downloaded JSON file was
+found and its synthetic note ID/count/review state were verified.
+
+Presentation: Add desktop/mobile/delete-dialog screenshots, a Japanese
+portfolio overview and a 90-second demo script. Screenshots are synthetic
+mail fixtures, not proof of live Gmail. No video recording was produced.
+
+CI: Add manual dispatch, bounded job duration, cancellation of outdated runs
+and pip dependency validation. No remote exists, so GitHub execution and
+public release are still unverified. Terraform validation is configured but
+was not run locally. No paid resource or external deployment was created.
+
+Final local checks: 28 Markdown files, 72 local links and seven API JSON
+examples validated. CI YAML structure validated; pip check reports no broken
+requirements. The user's API was restarted on port 8000 with version 0.3.0
+and the backup/delete routes verified. The existing browser tab was left
+untouched to preserve its unsaved state. The isolated test tab reloaded and
+retained the saved synthetic note and review status. The new UI is in the
+normal build served at port 5173 and will load on the user's next refresh.
+
+Human review status: Continuation is authorized; detailed acceptance,
+browser deletion/import confirmation, real Gmail and publication remain
+pending. Do not claim that automated tests constitute human approval.

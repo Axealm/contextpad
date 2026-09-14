@@ -184,6 +184,16 @@ h1, h2, h3, p { margin: 0; }
   .gmail-back { display: flex; align-items: center; gap: 7px; padding: 0 0 20px; color: #647895; font-size: 12px; }
   .gmail-dialog .icon-button { width: 36px; height: 36px; }
 }
+.backup-tools { display: flex; gap: 4px; margin-right: auto; }
+.confirmation-dialog { width: min(440px, calc(100% - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 24px; border: 1px solid var(--line); border-radius: 6px; color: #292c32; background: #fff; }
+.confirmation-dialog::backdrop { background: #24283266; }
+.confirmation-dialog h2 { font-size: 17px; font-weight: 600; }
+.confirmation-body { display: grid; gap: 12px; margin: 20px 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.confirmation-body .confirmation-filename { font-weight: 600; color: #292c32; }
+.confirmation-dialog footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+.dialog-cancel { padding: 8px 12px; font-size: 12px; }
+.danger-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #a23e43; color: #fff; border-radius: 4px; padding: 8px 15px; min-height: 36px; font-size: 12px; }
+.confirmation-error { color: #a23e43; font-size: 12px; overflow-wrap: anywhere; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 1600px) { .workbench { grid-template-columns: minmax(0, 1fr) 320px; } .inspector { padding-left: 28px; padding-right: 28px; } }
 @media (max-width: 1180px) { .app-shell { grid-template-columns: 222px minmax(0, 1fr); } .document { padding: 36px 30px 24px; } .workbench { grid-template-columns: minmax(0, 1fr) 272px; } .inspector { padding: 29px 20px; } }

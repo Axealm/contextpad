@@ -3,11 +3,12 @@ import { createRoot } from "react-dom/client";
 import {
   ArrowDownToLine, CalendarDays, Check, ChevronDown, ChevronRight, Clock3,
   FileText, ListFilter, Loader2, Mail, MapPin, Menu, NotebookPen, Pencil,
-  Plus, Search, Users, X,
+  Download, Plus, Search, Trash2, Upload, Users, X,
 } from "lucide-react";
 import "./styles.css";
-import { EmailLink, request } from "./api";
+import { ApiError, EmailLink, request } from "./api";
 import { GmailPicker } from "./GmailPicker";
+import { ConfirmationDialog } from "./ConfirmationDialog";
 
 type ExtractedContext = {
   summary: string;
@@ -25,6 +26,18 @@ type WorkNote = {
 type Document = Omit<WorkNote, "context"> & {
   context: ExtractedContext | null; saved: boolean; dirty: boolean;
 };
+type Backup = { schema_version: 1; exported_at: string; notes: WorkNote[] };
+
+function blankNote(): Document {
+  return {
+    id: `draft-${crypto.randomUUID()}`, title: "", memo: "", email: null,
+    context: null, saved: false, dirty: true, updated_at: new Date().toISOString(),
+  };
+}
+
+function hasChanges(note: Document) {
+  return note.dirty && !!(note.title || note.memo || note.email);
+}
 const emptyEmail: EmailLink = { provider: "gmail", subject: "", sender: "", snippet: "" };
 const example: Document = {
   id: "draft-example", title: "9/17 取引先A 打ち合わせ", saved: false, dirty: true,
@@ -59,7 +72,11 @@ function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "reviewed">("all");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [busy, setBusy] = useState<"save" | "extract" | "review" | null>(null);
+  const [busy, setBusy] = useState<"save" | "extract" | "review" | "delete" | "backup" | "restore" | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [restoring, setRestoring] = useState<{ name: string; backup: Backup } | null>(null);
+  const [dialogError, setDialogError] = useState<string | null>(null);
+  const backupInput = useRef<HTMLInputElement>(null);
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const interacted = useRef(false);
@@ -83,7 +100,7 @@ function App() {
 
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
-      if (!interacted.current || !documents.some((note) => note.dirty)) return;
+      if (!interacted.current || !documents.some(hasChanges)) return;
       event.preventDefault();
       event.returnValue = "";
     };
@@ -115,10 +132,7 @@ function App() {
 
   function newNote() {
     interacted.current = true;
-    const note: Document = {
-      id: `draft-${crypto.randomUUID()}`, title: "", memo: "", email: null,
-      context: null, saved: false, dirty: true, updated_at: new Date().toISOString(),
-    };
+    const note = blankNote();
     setDocuments((notes) => [note, ...notes]);
     setSelectedId(note.id);
     setFilter("all");
@@ -154,6 +168,83 @@ function App() {
     } finally { setBusy(null); }
   }
 
+  async function deleteCurrent() {
+    if (busy) return;
+    const id = current.id;
+    setBusy("delete"); setDialogError(null);
+    try {
+      if (current.saved) {
+        try { await request<void>(`/api/v1/notes/${id}`, "DELETE"); }
+        catch (error) { if (!(error instanceof ApiError && error.status === 404)) throw error; }
+      }
+      const remaining = documents.filter((note) => note.id !== id);
+      const next = remaining.length ? remaining : [blankNote()];
+      setDocuments(next); setSelectedId(next[0].id);
+      setQuery(""); setFilter("all"); setDeleting(false);
+      setNotice({ text: "メモを削除しました。", error: false });
+    } catch {
+      setDialogError("削除を確認できませんでした。メモは画面に残しています。");
+    } finally { setBusy(null); }
+  }
+
+  async function downloadBackup() {
+    if (busy) return;
+    setBusy("backup"); setNotice(null);
+    try {
+      const backup = await request<Backup>("/api/v1/backups");
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup)], { type: "application/json" }));
+      const link = document.createElement("a");
+      link.href = url; link.download = `contextpad-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNotice({ text: documents.some(hasChanges)
+        ? "保存済みメモをバックアップしました。未保存の変更は含まれていません。"
+        : "保存済みメモをバックアップしました。", error: false });
+    } catch (error) {
+      setNotice({ text: error instanceof ApiError && error.code === "backup_too_large"
+        ? "バックアップの上限（1,000件・5MiB）を超えています。"
+        : "バックアップできませんでした。もう一度お試しください。", error: true });
+    } finally { setBusy(null); }
+  }
+
+  async function chooseBackup(file?: File) {
+    if (!file || busy) return;
+    setBusy("backup"); setNotice(null); setDialogError(null);
+    try {
+      if (file.size > 5 * 1024 * 1024) throw new Error("too_large");
+      const backup = JSON.parse(await file.text()) as Backup;
+      if (backup?.schema_version !== 1 || !Array.isArray(backup.notes) || backup.notes.length > 1000) throw new Error("invalid");
+      setRestoring({ name: file.name, backup });
+    } catch {
+      setNotice({ text: "読み込めるバックアップではありません。ContextPadのJSONファイル（5MiB以内）を選んでください。", error: true });
+    } finally { setBusy(null); if (backupInput.current) backupInput.current.value = ""; }
+  }
+
+  async function restoreBackup() {
+    if (busy || !restoring) return;
+    setBusy("restore"); setDialogError(null);
+    try {
+      const result = await request<{ restored: number; skipped: number }>("/api/v1/backups/restore", "POST", restoring.backup);
+      setRestoring(null);
+      try {
+        const saved = (await request<WorkNote[]>("/api/v1/notes")).map((note) => ({ ...note, saved: true, dirty: false }));
+        setDocuments((existing) => [
+          ...existing.map((note) => note.dirty ? note : saved.find((item) => item.id === note.id) ?? note),
+          ...saved.filter((note) => !existing.some((item) => item.id === note.id)),
+        ]);
+        setFilter("all"); setQuery("");
+        setNotice({ text: `${result.restored}件を復元しました。変更なし ${result.skipped}件。`, error: false });
+      } catch {
+        setNotice({ text: "復元は完了しましたが、一覧を取得できませんでした。未保存メモを退避してから再読み込みしてください。", error: true });
+      }
+    } catch (error) {
+      setDialogError(error instanceof ApiError && error.code === "backup_conflict"
+        ? "同じIDで内容が異なるメモがあります。既存メモを保護するため、復元全体を取り消しました。"
+        : error instanceof ApiError && error.code === "invalid_backup"
+        ? "バックアップの内容が不正です。メモは変更していません。"
+        : "復元の完了を確認できませんでした。同じファイルで再試行しても同一内容は重複登録されません。");
+    } finally { setBusy(null); }
+  }
+
   const visibleNotes = documents.filter((note) => {
     const matches = `${note.title} ${note.memo} ${note.email?.subject ?? ""}`.toLowerCase().includes(query.toLowerCase());
     return matches && (filter === "all" || note.context?.review_status === "human_reviewed");
@@ -182,12 +273,17 @@ function App() {
         </button>)}
         {visibleNotes.length === 0 && <p className="list-empty">{query ? "一致するメモはありません" : "確認済みのメモはありません"}</p>}
       </nav>
-      <footer className="sidebar-footer"><span className="workspace-dot" />個人のワークスペース{loading && <Loader2 size={13} className="spin" aria-label="読み込み中" />}</footer>
+      <footer className="sidebar-footer"><div className="backup-tools">
+        <IconButton label="保存済みメモをバックアップ" disabled={!!busy || loading} onClick={downloadBackup}><Download size={16} /></IconButton>
+        <IconButton label="バックアップから復元" disabled={!!busy || loading} onClick={() => backupInput.current?.click()}><Upload size={16} /></IconButton>
+        <input ref={backupInput} type="file" accept=".json,application/json" aria-label="バックアップファイル" hidden onChange={(event) => chooseBackup(event.target.files?.[0])} />
+      </div><span className="workspace-dot" />個人用{loading && <Loader2 size={13} className="spin" aria-label="読み込み中" />}</footer>
     </aside>
     <main className="workspace">
       <header className="toolbar">
         <div className="breadcrumb"><span className="mobile-menu"><IconButton label="メモ一覧を開く" onClick={() => setSidebarOpen(true)}><Menu size={18} /></IconButton></span><span>メモ</span><ChevronRight size={13} /><span>{current.saved ? "保存済み" : "下書き"}</span></div>
         <div className="toolbar-actions"><span className={`save-status ${current.dirty ? "unsaved" : ""}`}>{current.dirty ? "未保存" : <><Check size={12} />保存済み</>}</span>
+          <IconButton label="メモを削除" disabled={!!busy || loading} onClick={() => { setDialogError(null); setDeleting(true); }}><Trash2 size={16} /></IconButton>
           <button className="save-button" type="button" disabled={!!busy || !current.memo.trim() || !current.dirty} onClick={() => perform("save")}>
             {busy === "save" ? <Loader2 size={15} className="spin" /> : <ArrowDownToLine size={15} />}<span>{busy === "save" ? "保存中" : "保存"}</span></button>
         </div>
@@ -222,6 +318,17 @@ function App() {
         </aside>
       </div>
     </main>
+    {deleting && <ConfirmationDialog title="このメモを削除しますか" action="削除する" destructive busy={!!busy} error={dialogError}
+      onCancel={() => setDeleting(false)} onConfirm={deleteCurrent}>
+      <p className="confirmation-filename">{current.title || "無題のメモ"}</p>
+      <p>関連メールのコピーも削除されます。Gmail内のメールは変更されません。{current.dirty && "未保存の変更も失われます。"}</p>
+      <p>バックアップがない場合は元に戻せません。</p>
+    </ConfirmationDialog>}
+    {restoring && <ConfirmationDialog title="バックアップを復元しますか" action="復元する" busy={!!busy} error={dialogError}
+      onCancel={() => setRestoring(null)} onConfirm={restoreBackup}>
+      <p className="confirmation-filename">{restoring.name}</p><p>{restoring.backup.notes.length}件の保存済みメモ</p>
+      <p>現在のメモと未保存の変更は上書きしません。同じID・同じ内容のメモは追加されません。</p>
+    </ConfirmationDialog>}
   </div>;
 }
 

@@ -1,6 +1,6 @@
 # ContextPad ドキュメント
 
-文書版: 0.3 / 更新日: 2026-09-14 / 対象: ローカル試作版
+文書版: 0.4 / 更新日: 2026-09-14 / 対象: ローカル試作版
 
 現在のコードと照合した日本語の仕様・設計資料です。**実装済み・設計案・未実装**を区別しています。サンプルは取引先A・担当Aさんなどの架空の表記で統一し、実在する取引先や案件との関係を示すものではありません。
 
@@ -12,6 +12,9 @@
 | [テスト・運用設計書](test-and-operations.md) | 検証方法、起動・停止、障害対応、リリース条件、残課題 |
 | [Gmail設定手順](gmail-setup.md) | Google Cloud OAuthの準備、秘密情報の設定、実接続時の確認 |
 | [Gmail連携設計](ai-dlc/15-gmail-integration.md) | 接続・取得・解除、セキュリティ、データ寿命、ADR、試験 |
+| [ポートフォリオ概要](portfolio.md) | 紹介文、実装状況、判断の根拠、残課題 |
+| [90秒デモ](demo.md) | 架空データでの説明順序と確認手順 |
+| [削除・バックアップ設計](ai-dlc/18-note-management.md) | 確認画面、JSON契約、復元時の保護、ADR-007 |
 | [SQLite保存設計](ai-dlc/17-sqlite-persistence.md) | 保存先、トランザクション、再起動試験、ADR-006 |
 | [無料構成と次の工程](ai-dlc/16-free-development-roadmap.md) | 追加料金0円の制約、ローカル構成、無料枠の境界、作業順序 |
 | [AI-DLC成果物一覧](ai-dlc/00-index.md) | Inception / Construction / Operationsの検討記録 |

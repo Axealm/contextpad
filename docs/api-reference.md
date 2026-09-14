@@ -1,6 +1,6 @@
 # ContextPad API仕様書
 
-文書版: 0.3 / 更新日: 2026-09-14 / 対象: 現行FastAPI実装
+文書版: 0.4 / 更新日: 2026-09-14 / 対象: 現行FastAPI実装
 
 ベースURLは `http://127.0.0.1:8000`。通常のリクエスト・レスポンスはJSON。動的なAPI定義は `/openapi.json`、対話的なドキュメントは `/docs`。メモAPIに利用者認証・利用者分離はない。Gmail APIのみ連携用セッションを検証する。
 
@@ -15,10 +15,23 @@
 | GET | `/api/v1/notes/{note_id}` | 200 | 単一WorkNote。不明IDは404 |
 | PUT | `/api/v1/notes/{note_id}` | 200 | メモを全体更新。ID・created_atは維持、不明IDは404 |
 | POST | `/api/v1/notes/{note_id}/review` | 200 | 抽出結果全体を確認済みにする。不明IDは404 |
+| DELETE | `/api/v1/notes/{note_id}` | 204 | メモと関連メールのコピーを削除。本文なし、不明IDは404 |
+| GET | `/api/v1/backups` | 200 | 保存済みメモのJSONファイル。大きすぎる場合は413 |
+| POST | `/api/v1/backups/restore` | 200 | バックアップを一括復元しrestored/skipped件数を返す |
 
-メモのDELETE、メモ一覧のページング、共有、項目別承認のAPIは未実装。Gmailルートは以下を参照。
+メモ一覧のページング、共有、項目別承認のAPIは未実装。Gmailルートは以下を参照。
 
 保存先はローカルSQLite。保存障害は503と `{ "detail": "storage_unavailable" }` を返し、DBパスやメモ本文は返さない。メモリ保存への自動フォールバックはしない。起動時に未知のスキーマや破損を検出した場合は起動自体を中止する。
+
+## バックアップAPI
+
+GETは `schema_version: 1`、`exported_at`（UTC）、`notes`（WorkNote配列）を返し、Content-Disposition: attachmentを付ける。OAuthトークンと下書きは含まない。POSTは同じJSON形式を受け付ける。
+
+上限は1,000件・5MiB（UTF-8バイト数）。復元時はContent-Lengthに依存せず実際の受信量を確認する。正規形UUIDの一意なID、非空白の件名・本文、タイムゾーン付き日時、モデル制約、スキーマ版を検証する。
+
+同じID・同じ内容はスキップ、同じID・異なる内容は409/backup_conflictで全体をrollback。成功は `{ "restored": 1, "skipped": 0 }`。不正データは422/invalid_backup、非JSONは415/json_required、上限超過は413/backup_too_large。エラーにアップロード本文を含めない。自動上書きや部分成功はない。
+
+全変更APIは、ブラウザーが送ったOriginが許可したローカルURLでない場合、またはOriginなしでSec-Fetch-Site: cross-siteの場合に403/origin_not_allowedを返す。OriginなしのローカルCLIは許可する。利用者認証・ユーザー分離の代替ではない。
 
 ## Gmail API
 
@@ -57,7 +70,7 @@ Gmailエラーは `{detail: "安全なエラーコード"}`。例: 未接続・�
 }
 ```
 
-title・memoは必須かつ1文字以上。emailは任意。providerはgmailのみ。subject・sender・snippetは空文字を許可する。入力の最大長、空白だけのAPI入力、余分なフィールドの厳密な拒否は現行モデルで十分に制約されていない。UIは空白だけの本文を保存・整理できないようにしている。
+title・memoは必須かつ1文字以上。emailは任意。providerはgmailのみ。subject・sender・snippetは空文字を許可する。title・memoの空白だけの入力は422で拒否する。通常のメモAPIには最大長や余分なフィールドの厳密な拒否をまだ十分に設定していない。UIは空白だけの本文を保存・整理できないようにしている。
 
 ## WorkNoteレスポンス
 
@@ -110,4 +123,4 @@ ID・時刻は説明用の値。実際はサーバーが生成する。context�
 
 型違い・必須項目不足・空文字には422と、FastAPI/Pydantic標準の `detail` 配列を返す。要素にはloc・msg・type等が入り、詳細はライブラリ版に依存する。初期設計の `{ "error": { "code": ... } }` 形式は未実装。
 
-通信断・タイムアウト・JSON解析失敗は画面側が通知する。POSTの冪等性キー、楽観ロック、リクエスト上限、レート制限は未実装。タイムアウト時にサーバーの保存自体が完了している場合を、現行UIは識別できない。
+通信断・タイムアウト・JSON解析失敗は画面側が通知する。新規メモ作成の冪等性キー、楽観ロック、通常メモAPIのリクエスト上限、レート制限は未実装。タイムアウト時にサーバーの保存自体が完了している場合を、現行UIは識別できない。復元は同一ID・同一内容の再試行をスキップし、サイズ上限を設ける。

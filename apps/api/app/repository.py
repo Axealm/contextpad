@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import sqlite3
@@ -7,7 +9,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from app.models import ExtractedContext, NoteCreate, ReviewStatus, WorkNote
+from app.models import ExtractedContext, NoteCreate, RestoreResult, ReviewStatus, WorkNote
 
 API_DIRECTORY = Path(__file__).resolve().parents[1]
 COLUMNS = "id, title, memo, email_json, context_json, created_at, updated_at"
@@ -20,6 +22,10 @@ def database_path() -> Path:
 
 class StorageError(Exception):
     """A storage failure with no note content or filesystem path in its message."""
+
+
+class BackupConflict(Exception):
+    pass
 
 
 class NoteRepository:
@@ -150,3 +156,21 @@ class NoteRepository:
                     created_at = ?, updated_at = ? WHERE id = ?
             """, (*values[1:], note_id))
             return note
+
+    def delete(self, note_id: str) -> bool:
+        with self._connection(write=True) as connection:
+            return connection.execute("DELETE FROM notes WHERE id = ?", (note_id,)).rowcount == 1
+
+    def restore(self, notes: list[WorkNote]) -> RestoreResult:
+        restored = skipped = 0
+        with self._connection(write=True) as connection:
+            for note in notes:
+                row = connection.execute(f"SELECT {COLUMNS} FROM notes WHERE id = ?", (note.id,)).fetchone()
+                if row is not None:
+                    if self._decode(row) != note:
+                        raise BackupConflict()
+                    skipped += 1
+                    continue
+                connection.execute(f"INSERT INTO notes ({COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?)", self._values(note))
+                restored += 1
+        return RestoreResult(restored=restored, skipped=skipped)

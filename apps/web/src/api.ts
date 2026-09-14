@@ -19,5 +19,5 @@ export async function request<T>(path: string, method = "GET", data?: unknown): 
     const body = await response.json().catch(() => ({}));
     throw new ApiError(response.status, typeof body.detail === "string" ? body.detail : "request_failed");
   }
-  return response.json();
+  return response.status === 204 ? undefined as T : response.json();
 }

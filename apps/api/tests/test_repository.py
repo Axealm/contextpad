@@ -5,7 +5,6 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient

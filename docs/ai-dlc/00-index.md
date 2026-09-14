@@ -25,11 +25,14 @@ This folder captures the project lifecycle in an AI-DLC style. The goal is not t
 - `14-ui-design.md`
 - `15-gmail-integration.md`
 - `17-sqlite-persistence.md`
+- `18-note-management.md`
 
 ## Operations
 
 - `13-release-operations.md`
 - `16-free-development-roadmap.md`
+- [Portfolio overview](../portfolio.md)
+- [Demo walkthrough](../demo.md)
 
 ## Governance
 

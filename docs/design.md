@@ -1,6 +1,6 @@
 # ContextPad 基本・詳細設計書
 
-文書版: 0.3 / 更新日: 2026-09-14 / 対象: 現行実装と将来構成案
+文書版: 0.4 / 更新日: 2026-09-14 / 対象: 現行実装と将来構成案
 
 ## 1. 実装構成
 
@@ -25,16 +25,17 @@ flowchart LR
 | ファイル | 責務・制約 |
 | --- | --- |
 | `apps/web/src/main.tsx` | Appの状態、一覧・編集・整理画面、API呼び出し、失敗表示 |
+| `apps/web/src/ConfirmationDialog.tsx` | 削除・復元確認、キャンセルへの初期フォーカス、モーダル終了時のフォーカス復帰 |
 | `apps/web/src/api.ts` | Cookie付き通信、上限時間、共通メール型とエラー |
 | `apps/web/src/GmailPicker.tsx` | 接続・検索・プレビュー・選択・解除、ダイアログのフォーカス管理 |
 | `apps/web/src/styles.css` | ニュートラル配色、3列構成、狭幅表示、フォーカス、動作低減 |
 | `apps/web/index.html` | 起動時の代替表示。JSが読み込めない場合も案内を残す |
-| `apps/api/app/main.py` | 7本の業務・ヘルスAPI、Gmailルーター登録、CORS・Host・応答ヘッダー |
+| `apps/api/app/main.py` | 10本の業務・ヘルスAPI、Gmailルーター登録、CORS・Host・応答ヘッダー |
 | `apps/api/app/gmail.py` | 設定、Cookieとstateの照合、一時セッション、Gmail用7ルート、アクセスログのクエリー除去 |
 | `apps/api/app/gmail_provider.py` | Google公式認証ライブラリ、Gmailの読取・失効要求、MIME本文のテキスト化 |
 | `apps/api/app/models.py` | 入出力の型、UUID、UTC日時、最小文字数、確認状態 |
 | `apps/api/app/extractor.py` | 日本語文字列からの決定的抽出。外部通信しない |
-| `apps/api/app/repository.py` | SQLiteの作成・読取・検索・更新・確認状態変更、スキーマ版管理、接続・トランザクション |
+| `apps/api/app/repository.py` | SQLiteの作成・読取・検索・更新・確認状態変更・削除・一括復元、スキーマ版管理、接続・トランザクション |
 | `apps/api/app/bedrock_adapter.py` | JSONプロンプト構築と応答モデル検証。実行経路から未使用 |
 
 依存方向はルートからモデル・抽出・リポジトリへ向ける。SQLite接続はリポジトリに閉じ、生成AIのクライアントも画面やルートから直接呼ばない。
@@ -119,6 +120,8 @@ sequenceDiagram
 HTTP失敗・通信例外・原則30秒のタイムアウトは画面で捕捉し、処理中状態を解除する。Gmail一覧は10件分のメタデータ照会を伴うため120秒。認証待ちは最大10分で状態だけを確認し、アクセストークン更新は公式ライブラリを使う。一般的な業務APIの自動再試行や楽観ロックは未実装。複数タブで同じメモを更新すると後勝ちになる。
 
 APIエラーは現在FastAPIの標準 `detail` 形式。定義だけ存在する `ErrorEnvelope` は使われていない。
+
+削除・バックアップ・復元の仕様、Origin検証、全体取消の設計は[ADR-007](ai-dlc/18-note-management.md)を参照。ブラウザーからの外部Originの変更要求を拒否するが、これは利用者認証ではなく、同一端末の他プロセスに対するアクセス制御でもない。
 
 ## 7. AWS構成案（未接続）
 
