@@ -1,11 +1,9 @@
 # ContextPad AI-DLC Artifacts
 
 Current implementation specifications in Japanese: [document index](../README.md).
-The phase folders below are this project's organization of design evidence,
-not proof that the official workflow runtime or all approval gates were run.
+This directory records the ContextPad development lifecycle using an AI-DLC-inspired structure.
 
-This folder captures the project lifecycle in an AI-DLC style. The goal is not to claim that AI replaces engineering judgment. The goal is to show that AI proposes, humans review, and implementation proceeds with explicit decisions.
-
+Requirements, architecture, ADRs, testing, operations, and review decisions are kept together so that implementation changes can be traced back to their design context.
 ## Inception
 
 - `01-vision.md`
