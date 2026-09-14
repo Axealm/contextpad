@@ -184,6 +184,11 @@ Verification at implementation time:
   completed: browser approval prevented risking unsaved text. The user was
   asked whether to preserve the current tab state or allow a reload.
 
+Follow-up on the same date: The user explicitly permitted reloading even if
+unsaved memo text was lost. Reload completed; the updated application and
+the unconfigured Gmail setup dialog were verified in the existing app tab.
+The implementation was committed locally as `a3c6a68`; no remote push occurred.
+
 Human review status: Gmail priority and setup documentation explicitly
 requested. Detailed security/design acceptance and production release remain
 pending. This record does not turn mocked tests into real connection approval.
