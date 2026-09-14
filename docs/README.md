@@ -11,7 +11,7 @@
 | [API仕様書](api-reference.md) | 実装済みエンドポイント、リクエスト・レスポンス、エラー形式 |
 | [テスト・運用設計書](test-and-operations.md) | 検証方法、起動・停止、障害対応、リリース条件、残課題 |
 | [Gmail設定手順](gmail-setup.md) | Google Cloud OAuthの準備、秘密情報の設定、実接続時の確認 |
-| [Gmail実接続の受入確認](ai-dlc/19-gmail-live-acceptance.md) | テストデータ、確認項目、中止条件、未実施状態の記録 |
+| [Gmail実接続の受入確認](ai-dlc/19-gmail-live-acceptance.md) | 本人による正常系7項目の確認結果、証跡の扱い、追加試験 |
 | [Gmail連携設計](ai-dlc/15-gmail-integration.md) | 接続・取得・解除、セキュリティ、データ寿命、ADR、試験 |
 | [ポートフォリオ概要](portfolio.md) | 紹介文、実装状況、判断の根拠、残課題 |
 | [90秒デモ](demo.md) | 架空データでの説明順序と確認手順 |

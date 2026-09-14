@@ -308,3 +308,59 @@ Verification: The local .env matches the existing Git exclusion rule and
 was not staged. Validated 29 Markdown files, 75 local links and seven API
 JSON examples. TypeScript and the production build pass with the updated
 setup guide. API code and account permissions were not changed in this step.
+
+## Review 012: Load User-Entered Gmail Configuration
+
+Date: 2026-09-14
+
+Explicit human report: The user said the local settings were entered. This
+is not a report of successful Google consent or live Gmail acceptance.
+
+Verification: Checked only booleans for client ID presence, client secret
+presence, local URL validity and configuration readiness; all were true.
+Restarted only the local API and confirmed health status=ok. The cookie-free
+Gmail status request returned configured=true, connected=false,
+pending=false and error=null. This confirms local loading, not credential
+validity or another browser's connection state. The .env remains ignored
+and was not staged; no secret values were displayed or added to documents.
+
+Boundaries: No Google login, consent, mailbox access, billing change or
+deployment was performed. The existing browser tab was not refreshed.
+The user must review and grant the expected read-only access in a normal
+browser using a test account. Live acceptance rows remain pending except
+for local preparation. Updated the current documentation to distinguish
+configured local settings from an authenticated, tested integration.
+
+## Review 013: Human-Verified Live Gmail Happy Path
+
+Date: 2026-09-14
+
+Explicit human report: Live Gmail acceptance completed using a real Google
+account. The user reported OK for OAuth connection, message listing,
+search, details, linking, linkage retention after saving a note, and
+disconnection. Record these seven results as human-performed acceptance,
+not as an agent rerun or an automated test.
+
+Evidence: The user attached a connection-success screen and a connected
+message-list screen. Other results rely on the explicit written report.
+The screenshots contain personal information and real email data, so do
+not add them or transcribe their contents into Git or public artifacts.
+Do not assert that this run used only synthetic messages. Further tests
+and publishable evidence should use a dedicated test account and fixtures.
+
+Changes: Update README, current specifications, the portfolio overview,
+demo guidance, roadmap and live acceptance record. Preserve earlier
+observations as history. Keep unreported reload/ID checks, reconnection,
+revocation details, token refresh and error paths separate from the seven
+successful results. Do not infer design-wide or public-release approval.
+
+Boundaries: No additional mailbox access, user-data deletion, credentials
+disclosure, billing changes, deployment or remote publication. Secrets,
+the local database and the supplied screenshots are excluded from the
+documentation commit. Public portfolio screenshots remain fictional.
+
+Verification: Validated 29 Markdown files, 87 local links and seven API
+JSON examples. TypeScript checking and the production build passed with
+the updated setup guide. Application code was unchanged; the 50-test API
+suite was not rerun for this documentation-only update. Whitespace checks
+passed, and staging was limited to the explicitly listed Markdown files.

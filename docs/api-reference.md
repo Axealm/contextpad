@@ -35,7 +35,7 @@ GETは `schema_version: 1`、`exported_at`（UTC）、`notes`（WorkNote配列�
 
 ## Gmail API
 
-認証設定・実接続検証は未完了。callbackとresultを除く全ルートは、ブラウザーの `Origin` が設定済みのAPP_WEB_ORIGINに一致する必要がある。messagesはHttpOnly Cookieによるセッションも必須。`/docs` からの直接試行はOriginが異なるため403となる。
+ローカルの正常系は実アカウントでユーザー本人が確認済み。[受入記録](ai-dlc/19-gmail-live-acceptance.md)の範囲に限り、全エラーやトークン更新の実接続検証完了を意味しない。callbackとresultを除く全ルートは、ブラウザーの `Origin` が設定済みのAPP_WEB_ORIGINに一致する必要がある。messagesはHttpOnly Cookieによるセッションも必須。`/docs` からの直接試行はOriginが異なるため403となる。
 
 | メソッド | `/api/v1/gmail` 以下のパス | 契約 |
 | --- | --- | --- |

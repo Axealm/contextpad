@@ -151,7 +151,7 @@ flowchart LR
 | Secrets Manager / CloudWatch | シークレット格納先とロググループの雛形のみ |
 | API Gateway / Lambda / ECS / CloudFront / RDS | リソース実装なし |
 | Bedrock | 実呼び出しなし |
-| Gmail OAuth | ローカル用実装あり。認証情報・実接続検証・クラウド対応は未完了 |
+| Gmail OAuth | ローカルの正常系は実アカウントで本人確認済み。[受入記録](ai-dlc/19-gmail-live-acceptance.md)。クラウド対応は未完了 |
 | GitHub Actions | テスト・ビルド・Terraform検証の設定のみ。デプロイなし |
 
 `runtime_mode` 変数は宣言だけでリソースの切り替えに使われていない。シークレットの値も定義していない。現状のTerraformを適用してもサービス全体は稼働しない。
