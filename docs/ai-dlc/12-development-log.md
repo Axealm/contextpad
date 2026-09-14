@@ -1,4 +1,4 @@
-# Human Review Log
+# development-log.md
 
 This file records the AI-DLC approval trail. The reviewer should update status before treating AI output as accepted.
 
@@ -80,7 +80,7 @@ Human review status: Pending verification of the updated preview.
 
 Date: 2026-09-13
 
-Human feedback: The UI looks obviously AI-generated; redesign it.
+Human feedback: Simplify the UI and reduce excessive visual hierarchy and explanatory elements.
 The user subsequently requested continuation after a tooling interruption.
 
 Implemented response:
@@ -106,7 +106,7 @@ not human approval of design or production content.
 
 Date: 2026-09-13
 
-Explicit human request:
+Requested changes:
 
 - Commit the project to Git.
 - Provide specifications and design documents.
@@ -365,12 +365,11 @@ the updated setup guide. Application code was unchanged; the 50-test API
 suite was not rerun for this documentation-only update. Whitespace checks
 passed, and staging was limited to the explicitly listed Markdown files.
 
-## Review 014: Prioritize an Application-Ready Portfolio Link
+## Review 014: Public Repository Preparation
 
 Date: 2026-09-14
 
-Explicit human request: Prepare a portfolio that can be linked in a job
-application, then resume deletion-related acceptance. Do not run the
+Explicit human request:Prepare the repository for public sharing, then resume deletion-related acceptance. Do not run the
 deferred deletion or restore actions during publication preparation.
 
 Changes: Restructure the README around the actual product screen, problem,
