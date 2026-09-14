@@ -364,3 +364,32 @@ JSON examples. TypeScript checking and the production build passed with
 the updated setup guide. Application code was unchanged; the 50-test API
 suite was not rerun for this documentation-only update. Whitespace checks
 passed, and staging was limited to the explicitly listed Markdown files.
+
+## Review 014: Prioritize an Application-Ready Portfolio Link
+
+Date: 2026-09-14
+
+Explicit human request: Prepare a portfolio that can be linked in a job
+application, then resume deletion-related acceptance. Do not run the
+deferred deletion or restore actions during publication preparation.
+
+Changes: Restructure the README around the actual product screen, problem,
+implementation evidence and human/AI responsibilities. Add a publication
+guide distinguishing a public source repository from a deployed app.
+Keep the current local app and real Gmail data out of public hosting.
+
+Pre-publication checks: A read-only scan of the existing eight commits and
+142 distinct Git blobs found no matches for the checked secret formats,
+non-example email addresses or sensitive file names. Reviewed the three
+tracked screenshots visually; all use fictional samples. The scan is not
+a comprehensive security audit. Local .env, database, backups and the
+user's attached live Gmail screenshots were not read or uploaded.
+
+Human decision pending: Confirm the destination account/repository before
+publication. No remote is configured, no public URL has been created and
+GitHub CI has not run at this preparation step. Existing local test
+results do not establish successful remote execution.
+
+Validation: 30 Markdown files, 94 local links and seven API JSON examples
+passed the local document checks. Git whitespace validation passed.
+Application code, CI configuration and user data were unchanged.

@@ -14,6 +14,7 @@
 | [Gmail実接続の受入確認](ai-dlc/19-gmail-live-acceptance.md) | 本人による正常系7項目の確認結果、証跡の扱い、追加試験 |
 | [Gmail連携設計](ai-dlc/15-gmail-integration.md) | 接続・取得・解除、セキュリティ、データ寿命、ADR、試験 |
 | [ポートフォリオ概要](portfolio.md) | 紹介文、実装状況、判断の根拠、残課題 |
+| [応募用の公開手順](publishing.md) | GitHub掲載、秘密情報の検査、応募欄に使うURLとアプリ公開の違い |
 | [90秒デモ](demo.md) | 架空データでの説明順序と確認手順 |
 | [削除・バックアップ設計](ai-dlc/18-note-management.md) | 確認画面、JSON契約、復元時の保護、ADR-007 |
 | [SQLite保存設計](ai-dlc/17-sqlite-persistence.md) | 保存先、トランザクション、再起動試験、ADR-006 |
