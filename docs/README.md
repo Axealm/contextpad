@@ -19,7 +19,7 @@
 | [SQLite保存設計](ai-dlc/17-sqlite-persistence.md) | 保存先、トランザクション、再起動試験、ADR-006 |
 | [無料構成と次の工程](ai-dlc/16-free-development-roadmap.md) | 追加料金0円の制約、ローカル構成、無料枠の境界、作業順序 |
 | [AI-DLC成果物一覧](ai-dlc/00-index.md) | Inception / Construction / Operationsの検討記録 |
-| [開発レビュー履歴](ai-dlc/12-human-review-log.md) | 要件変更、設計判断、実装・検証結果の記録 |
+| [開発レビュー履歴](ai-dlc/12-development-log.md) | 要件変更、設計判断、実装・検証結果の記録 |
 
 読む順序は、仕様書、基本・詳細設計書、API仕様書、テスト・運用設計書を推奨します。
 

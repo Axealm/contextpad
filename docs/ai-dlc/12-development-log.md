@@ -392,3 +392,22 @@ results do not establish successful remote execution.
 Validation: 30 Markdown files, 94 local links and seven API JSON examples
 passed the local document checks. Git whitespace validation passed.
 Application code, CI configuration and user data were unchanged.
+
+## Review 015: Public Repository Release
+
+Date: 2026-09-15
+
+The project owner approved publication to [Axealm/contextpad](https://github.com/Axealm/contextpad).
+Published the main branch with its existing history. An unauthenticated
+GitHub API request confirmed that the repository is public.
+
+[CI run 34847000995](https://github.com/Axealm/contextpad/actions/runs/34847000995)
+passed on commit 12c2893: API tests (50 passed, one warning), dependency
+validation, Web build and Terraform fmt/init/validate. No terraform apply
+or application deployment was performed.
+
+Pulled the owner's subsequent documentation edits through commit 2e1e338
+without rewriting the prose or restoring removed files. Updated four
+references to the renamed development log. Local validation passed for
+29 Markdown files, 91 links and seven API JSON examples. Runtime data,
+OAuth credentials and the supplied live-email screenshots were not published.

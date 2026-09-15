@@ -35,7 +35,7 @@ Requirements, architecture, ADRs, testing, operations, and review decisions are 
 
 ## Governance
 
-- `12-human-review-log.md`
+- `12-development-log.md`
 
 ## MVP Decision
 

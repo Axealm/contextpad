@@ -22,7 +22,7 @@
 | --- | --- | --- |
 | 外部サービス連携 | サーバー側OAuth、読み取り専用Gmail検索・詳細・選択・解除。保存後の紐づけ保持まで本人が実接続確認 | [実接続の受入記録](docs/ai-dlc/19-gmail-live-acceptance.md) |
 | データを守る設計 | SQLite永続化、同一ID更新、JSONバックアップ、復元競合時は全体取消。APIで再起動・復旧を検証 | [保存設計](docs/ai-dlc/17-sqlite-persistence.md) / [復元設計](docs/ai-dlc/18-note-management.md) |
-| 検証と説明可能性 | 50件のAPIテスト、Web型チェック・ビルド、仕様・ADR・レビュー記録。GitHub ActionsでAPI・Web・Terraformの全ジョブ成功を確認済み | [テスト・運用](docs/test-and-operations.md) / [開発記録](docs/ai-dlc/12-human-review-log.md) |
+| 検証と説明可能性 | 50件のAPIテスト、Web型チェック・ビルド、仕様・ADR・レビュー記録。GitHub ActionsでAPI・Web・Terraformの全ジョブ成功を確認済み | [テスト・運用](docs/test-and-operations.md) / [開発記録](docs/ai-dlc/12-development-log.md) |
 
 利用者認証・共有・生成AI呼び出し・AWSデプロイは未実装です。削除・復元のブラウザー最終受入、Gmail再接続・異常系の追加実試験は残しています。実装済みの機能と受入済みの範囲を分けて記録しています。
 
@@ -41,7 +41,7 @@ AWS AI-DLCの考え方を参考に、要求整理から設計、実装、テス�
 - [テスト・運用設計書](docs/test-and-operations.md): 検証、起動・停止、運用、リリース条件
 - [Gmail接続の設定手順](docs/gmail-setup.md): Google Cloudの作成、ローカル設定、接続試験
 - [Gmail連携の設計・判断記録](docs/ai-dlc/15-gmail-integration.md): 認証境界、仕様、ADR、試験、残課題
-- [AI-DLC成果物](docs/ai-dlc/00-index.md) / [人間のレビュー履歴](docs/ai-dlc/12-human-review-log.md)
+- [AI-DLC成果物](docs/ai-dlc/00-index.md) / [人間のレビュー履歴](docs/ai-dlc/12-development-log.md)
 
 ## できること
 
